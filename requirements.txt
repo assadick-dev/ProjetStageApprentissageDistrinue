@@ -1,0 +1,8 @@
+# TensorFlow (pip récupère automatiquement la roue ARM64 ou X86 selon l'architecture)
+tensorflow==2.12.0
+
+# (Éventuelles autres dépendances)
+# numpy
+pandas
+#matplotlib
+scikit-learn

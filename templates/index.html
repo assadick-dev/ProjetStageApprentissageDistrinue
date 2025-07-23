@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Global Active Power – Prédictions</title>
+
+  <!-- Bootstrap CSS via CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+  <!-- Votre CSS perso -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">GAP – Prédictions</a>
+    </div>
+  </nav>
+
+  <div class="container my-5">
+
+    <header class="mb-4 text-center">
+      <h1>Global Active Power – Prédictions</h1>
+      {% if total is defined %}
+        <p class="text-muted">Comparaison des {{ total }} points (vérités vs prédictions)</p>
+      {% else %}
+        <p class="text-muted">Uploadez votre fichier de test pour lancer la comparaison</p>
+      {% endif %}
+    </header>
+
+    <form method="POST" enctype="multipart/form-data" class="mb-5">
+      <div class="input-group">
+        <input type="file" name="file" class="form-control" accept=".txt,.csv" required>
+        <button class="btn btn-primary">Uploader &amp; Exécuter</button>
+      </div>
+    </form>
+
+    {% if total is defined %}
+      <!-- Tableau de bord KPI -->
+      <div class="row mb-4">
+        <!-- Prédictions -->
+        <div class="col-md-2 mb-3">
+          <div class="card text-center shadow-sm text-white bg-primary">
+            <div class="card-body">
+              <h5 class="card-title">{{ total }}</h5>
+              <p class="card-text">Prédictions</p>
+            </div>
+          </div>
+        </div>
+      
+        <!-- RMSE -->
+        <div class="col-md-2 mb-3">
+          <div class="card text-center shadow-sm text-white bg-success">
+            <div class="card-body">
+              <h5 class="card-title">{{ "%.3f"|format(rmse) }}</h5>
+              <p class="card-text">RMSE</p>
+            </div>
+          </div>
+        </div>
+      
+        <!-- MAE -->
+        <div class="col-md-2 mb-3">
+          <div class="card text-center shadow-sm text-white bg-warning">
+            <div class="card-body">
+              <h5 class="card-title">{{ "%.3f"|format(mae) }}</h5>
+              <p class="card-text">MAE</p>
+            </div>
+          </div>
+        </div>
+      
+        <!-- MAPE -->
+        <div class="col-md-2 mb-3">
+          <div class="card text-center shadow-sm text-white bg-info">
+            <div class="card-body">
+              <h5 class="card-title">{{ "%.2f"|format(mape) }}%</h5>
+              <p class="card-text">MAPE</p>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Écart-type -->
+        <div class="col-md-2 mb-3">
+          <div class="card text-center shadow-sm text-white bg-danger">
+            <div class="card-body">
+              <h5 class="card-title">{{ "%.3f"|format(err_std) }}</h5>
+              <p class="card-text">Écart-type</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart.js Canvas agrandi -->
+      <div class="card mb-5 shadow-sm">
+        <div class="card-body" style="height: 450px;">
+          <canvas id="comparisonChart" style="width:100%; height:100%;"></canvas>
+        </div>
+      </div>
+
+      <!-- Tableau responsive -->
+      <div class="table-responsive mb-5">
+        {{ table_html|safe }}
+      </div>
+    {% endif %}
+
+  </div>
+
+  <footer class="text-center py-3 bg-light">
+    &copy; {{ now.year }} Mon App Flask – par Hussard du Data
+  </footer>
+
+  <!-- JS dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/chart-setup.js') }}"></script>
+  {% if total is defined %}
+  <script>
+    const labels    = {{ labels|safe }};
+    const trueData  = {{ true_vals|safe }};
+    const predData  = {{ pred_vals|safe }};
+    setupComparisonChart(labels, trueData, predData);
+  </script>
+  {% endif %}
+</body>
+</html>

@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+
+  worker0:
+    build: .
+    container_name: worker0
+    networks:
+      - tf-net
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      TF_CONFIG: |
+        {
+          "cluster": {
+            "worker": [
+              "worker0:2222",
+              "worker1:2222"
+            ]
+          },
+          "task": {"type":"worker","index":0}
+        }
+    ports:
+      - "2222:2222"
+    mem_limit: 6g
+
+  worker1:
+    build: .
+    container_name: worker1
+    networks:
+      - tf-net
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      TF_CONFIG: |
+        {
+          "cluster": {
+            "worker": [
+              "worker0:2222",
+              "worker1:2222"
+            ]
+          },
+          "task": {"type":"worker","index":1}
+        }
+    ports:
+      - "2223:2222"
+    mem_limit: 6g
+
+networks:
+  tf-net:
+    driver: bridge
